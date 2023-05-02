@@ -20,3 +20,9 @@ environments:
         schedule: "H * * * *"
         command: wp cron event run --due-now --path=`/app/web/`
         service: cli
+  main:
+    cronjobs:
+      - name: cronjob
+        schedule: "H * * * *"
+        command: wp cron event run --due-now --path=`/app/web/`
+        service: cli      
