@@ -3,6 +3,32 @@ ssh: lagoon-ssh.aenesdemir.net:22
 api: https://lagoon-api.aenesdemir.net/graphql
 project: wordpress-example
 
+routes:
+  autogenerate:
+    enabled: false
+
+gke-wordpress:
+  environments:
+    test:
+      routes:
+        - varnish:
+            - wordpress-demo.aenesdemir.net:
+                tls-acme: 'false'
+                insecure: Allow
+        - nginx:
+            - nginx-wordpress-demo.aenesdemir.net:
+                tls-acme: 'false'
+                insecure: Allow
+                annotations:
+                  nginx.ingress.kubernetes.io/proxy-buffer-size: 16k
+                  nginx.ingress.kubernetes.io/proxy-buffers: 32 16k
+                  nginx.ingress.kubernetes.io/proxy-body-size: 1024m
+      cronjobs:
+      - name: cronjob
+        schedule: "H * * * *"
+        command: wp cron event run --due-now --path=`/app/web/`
+        service: cli
+
 tasks:
   post-rollout:
     - run:
@@ -14,11 +40,11 @@ tasks:
           fi
         service: cli
 
-environments:
-  master:
-    cronjobs:
-      - name: cronjob
-        schedule: "H * * * *"
-        command: wp cron event run --due-now --path=`/app/web/`
-        service: cli
+# environments:
+#   master:
+#     cronjobs:
+#       - name: cronjob
+#         schedule: "H * * * *"
+#         command: wp cron event run --due-now --path=`/app/web/`
+#         service: cli
      
